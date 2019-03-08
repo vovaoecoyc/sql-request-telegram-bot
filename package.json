@@ -1,0 +1,12 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "vovaoecoyc",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "node-telegram-bot-api": "^0.30.0",
+    "pg": "^7.8.1"
+  }
+}
