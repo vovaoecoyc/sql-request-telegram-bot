@@ -2,14 +2,12 @@
 
 > SQL requests telegram bot
 
-Бот создан с использованием Node.js и PostgreSQL 
+Бот создан с использованием Node.js и PostgreSQL
 
 ## Для запуска проекта необходимо:
 
-- Выполнить команду
-  ### `node index`
-
 - Создать две обязательные таблицы в базе данных
+
   - #### `CREATE TABLE public.auth_users
           (
               id integer NOT NULL DEFAULT nextval('auth_users_id_seq'::regclass),
@@ -25,3 +23,5 @@
               CONSTRAINT users_pkey PRIMARY KEY (id)
           )`
 
+- Выполнить команду
+  ### `node index`
