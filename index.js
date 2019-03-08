@@ -4,6 +4,7 @@ const subInformation = require('./sub-information'),
   crypto = require('crypto');
 
 db.client.connect(() => {
+  // проверка времени жизни данных авторизации пользователя(ей), если оно прошло, удаляем данные их
   db.client.query('SELECT * FROM auth_users').then(response => {
     const nowDate = Date.now();
     let removableIds = [];
@@ -20,17 +21,11 @@ db.client.connect(() => {
 const bot = new TelegramBot(subInformation.token, {
   polling: true,
   request: {
-    // proxy: 'http://191.252.185.161:8090/',
     proxy: 'http://51.38.71.101:8080/',
-    // proxy: 'http://177.72.115.65:31164/',
   },
 });
 
-// Matches "/echo [whatever]"
 bot.onText(/\/signin (.+) (.+)/, (msg, match) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
   const chatId = msg.chat.id,
     userId = msg.from.id,
     login = match[1],
@@ -42,6 +37,7 @@ bot.onText(/\/signin (.+) (.+)/, (msg, match) => {
   db.client
     .query('SELECT * FROM users')
     .then(response => {
+      // аутентификация по введенным логину и паролю
       const isAuth = response.rows.find(value =>
         value['name'] === login && value['hash_password'] === password ? true : false
       );
@@ -50,6 +46,7 @@ bot.onText(/\/signin (.+) (.+)/, (msg, match) => {
       });
     })
     .then(isAuth => {
+      // проверка авторизации текущегопользователя
       return db.client
         .query('SELECT * FROM auth_users')
         .then(response => {
@@ -64,9 +61,6 @@ bot.onText(/\/signin (.+) (.+)/, (msg, match) => {
           const lifitime = Date.now() + subInformation.lifetime;
           return db.client.query(`INSERT INTO auth_users VALUES(DEFAULT, ${userId}, ${lifitime})`);
         });
-      // .catch(error => {
-      //   bot.sendMessage(chatId, error.message);
-      // });
     })
     .then(response => {
       bot.sendMessage(chatId, 'Вы успешно аутентифицированы');
@@ -118,22 +112,6 @@ bot.onText(/^\/info$/, (msg, match) => {
 
   bot.sendMessage(
     chatId,
-    `Данный бот предоставляет информацию из базы данных по SQL запросу от пользователя.
-    Прежде чем использовать возможности бота необходимо пройти аутентификацию,
-    логин и пароль для которой можно найти по адресу https://github.com/vovaoecoyc/sql-request-telegram-bot`
+    `Данный бот предоставляет информацию из базы данных по SQL запросу от пользователя.Прежде чем использовать возможности бота необходимо пройти аутентификацию,логин и пароль для которой можно найти по адресу https://github.com/vovaoecoyc/sql-request-telegram-bot`
   );
 });
-
-/*bot.on('message', msg => {
-  const chatId = msg.chat.id;
-  // console.log(moment.now());
-
-  bot.sendMessage(
-    chatId,
-    `Привет, ${msg.from.first_name}.
-     Вот список доступных команд для бота:
-     /signin login password - аутентификация пользователя
-      Доступны только после аутентификации:
-      /request sql_request - получение данных из БД;`
-  );
-});*/
